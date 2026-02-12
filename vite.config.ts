@@ -16,5 +16,9 @@ export default defineConfig({
                 additionalData: ``
             }
         }
+    },
+    build: {
+        outDir: 'dist',
+        emptyOutDir: true
     }
 })
