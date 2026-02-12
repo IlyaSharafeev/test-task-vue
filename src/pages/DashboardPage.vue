@@ -153,14 +153,16 @@
           </button>
 
           <div class="pagination__pages">
-            <button
-                v-for="page in displayedPages"
-                :key="page"
-                @click="currentPage = page"
-                :class="['pagination__page', { 'pagination__page--active': currentPage === page }]"
-            >
-              {{ page }}
-            </button>
+            <template v-for="page in displayedPages" :key="page">
+              <button
+                  v-if="page !== '...'"
+                  @click="currentPage = page as number"
+                  :class="['pagination__page', { 'pagination__page--active': currentPage === page }]"
+              >
+                {{ page }}
+              </button>
+              <span v-else class="pagination__dots">...</span>
+            </template>
           </div>
 
           <button
@@ -177,7 +179,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch, computed } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import type { User } from '@/types'
 import { useTodos } from '@/composables/useTodos'
@@ -204,13 +206,13 @@ const {
 } = useTodos()
 
 const isCreating = ref(false)
-const newTodoUserId = ref(1)
-const newTodoTitle = ref('')
+const newTodoUserId = ref<number>(1)
+const newTodoTitle = ref<string>('')
 
 // Номера страниц для отображения
-const displayedPages = computed(() => {
+const displayedPages = computed<(number | string)[]>(() => {
   const delta = 2
-  const range = []
+  const range: (number | string)[] = []
   const left = Math.max(2, currentPage.value - delta)
   const right = Math.min(totalPages.value - 1, currentPage.value + delta)
 
@@ -238,7 +240,7 @@ const displayedPages = computed(() => {
 onMounted(() => {
   const userData = sessionStorage.getItem('user')
   if (userData) {
-    user.value = JSON.parse(userData)
+    user.value = JSON.parse(userData) as User
   } else {
     router.push('/')
   }
@@ -619,6 +621,15 @@ const handleCreateTodo = async () => {
         background: #45a049;
       }
     }
+  }
+
+  &__dots {
+    min-width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #666;
   }
 }
 
